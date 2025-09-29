@@ -47,6 +47,24 @@ public class LoginController {
         return "login";
     }
 
+    @GetMapping("/coming-soon")
+    public String comingSoonPage(Model model) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !auth.getName().equals("anonymousUser")) {
+            // Get user details from authentication
+            if (auth.getPrincipal() instanceof com.stockmanagement.security.CustomUserPrincipal) {
+                com.stockmanagement.security.CustomUserPrincipal userPrincipal = 
+                    (com.stockmanagement.security.CustomUserPrincipal) auth.getPrincipal();
+                com.stockmanagement.entity.User user = userPrincipal.getUser();
+                
+                model.addAttribute("userName", user.getFirstName() + " " + user.getLastName());
+                model.addAttribute("userEmail", user.getEmail());
+                model.addAttribute("userRole", user.getRole().toString());
+            }
+        }
+        return "coming-soon";
+    }
+
     @GetMapping("/access-denied")
     public String accessDeniedPage(Model model) {
         model.addAttribute("errorMessage", "You don't have permission to access this resource.");

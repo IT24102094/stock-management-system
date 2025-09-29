@@ -94,6 +94,12 @@
                         <span class="badge bg-primary" th:text="${auditLogs.totalElements} + ' total'">0 total</span>
                     </div>
                     <div class="card-body">
+                        <!-- Error Message -->
+                        <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span th:text="${errorMessage}">Error message</span>
+                        </div>
+                        
                         <div th:if="${auditLogs != null and !auditLogs.empty}">
                             <div th:each="log : ${auditLogs.content}" 
                                  th:class="'log-entry ' + ${log.actionType.name().toLowerCase()}"

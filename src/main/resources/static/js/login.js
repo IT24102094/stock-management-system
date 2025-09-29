@@ -44,6 +44,24 @@ document.addEventListener('DOMContentLoaded', function() {
         submitBtn.classList.remove('loading');
         submitBtn.disabled = false;
     }, 100);
+
+    // Add click functionality to credential cards
+    const credentialCards = document.querySelectorAll('.credential-card');
+    credentialCards.forEach(card => {
+        card.addEventListener('click', function() {
+            const username = this.querySelector('strong').nextSibling.textContent.trim();
+            const password = this.querySelectorAll('strong')[1].nextSibling.textContent.trim();
+            
+            usernameInput.value = username;
+            passwordInput.value = password;
+            
+            // Add visual feedback
+            this.style.background = '#e3f2fd';
+            setTimeout(() => {
+                this.style.background = '';
+            }, 1000);
+        });
+    });
 });
 
 

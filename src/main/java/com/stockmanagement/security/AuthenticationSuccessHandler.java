@@ -61,8 +61,8 @@ public class AuthenticationSuccessHandler extends SavedRequestAwareAuthenticatio
 
         logger.info("User {} logged in successfully from IP: {}", user.getUsername(), ipAddress);
 
-        // Route by role: ADMIN -> /admin/dashboard, others -> /
-        String targetUrl = "/";
+        // Route by role: ADMIN -> /admin/dashboard, others -> /coming-soon
+        String targetUrl = "/coming-soon";
         boolean isAdmin = authentication.getAuthorities().stream()
                 .anyMatch(ga -> ga.getAuthority().equals("ROLE_ADMIN"));
         if (isAdmin) {

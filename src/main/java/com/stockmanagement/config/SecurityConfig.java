@@ -69,6 +69,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/", "/login", "/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
+                        .requestMatchers("/coming-soon").authenticated()
                         .requestMatchers("/admin/**", "/users/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
@@ -82,11 +83,12 @@ public class SecurityConfig {
                         .permitAll()
                 )
                 .logout(logout -> logout
-                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "POST"))
+                        .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout")
                         .deleteCookies("JSESSIONID", "remember-me")
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "POST"))
                         .permitAll()
                 )
                 .rememberMe(remember -> remember

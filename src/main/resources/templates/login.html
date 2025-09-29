@@ -13,7 +13,7 @@
     <div class="login-card">
         <div class="login-header">
             <h2><i class="fas fa-boxes"></i> Stock Management</h2>
-            <p>Admin Login</p>
+            <p>Role-Based Access System</p>
         </div>
         <div class="login-body">
             <!-- Error Messages -->
@@ -66,15 +66,73 @@
             <div class="text-center mt-3">
                 <small class="text-muted">
                     <i class="fas fa-shield-alt"></i>
-                    Secure Admin Access Only
+                    Secure Role-Based Access
                 </small>
             </div>
 
-            <!-- Debug Info (remove in production) -->
-            <div class="text-center mt-3" style="font-size: 12px; color: #666;">
-                <div>Test Credentials:</div>
-                <div>Username: <strong>admin</strong></div>
-                <div>Password: <strong>admin123</strong></div>
+            <!-- Test Credentials for Different Roles -->
+            <div class="test-credentials mt-4">
+                <h6 class="text-center mb-3">
+                    <i class="fas fa-key"></i> Test Credentials
+                </h6>
+                
+                <div class="row g-2">
+                    <!-- Admin Role -->
+                    <div class="col-12">
+                        <div class="credential-card admin-role">
+                            <div class="role-badge">
+                                <i class="fas fa-crown"></i> ADMIN
+                            </div>
+                            <div class="credential-info">
+                                <div><strong>Username:</strong> admin</div>
+                                <div><strong>Password:</strong> admin123</div>
+                                <small class="text-muted">Access: Full Admin Dashboard</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Stock Manager Role -->
+                    <div class="col-12">
+                        <div class="credential-card stock-role">
+                            <div class="role-badge">
+                                <i class="fas fa-boxes"></i> STOCK MANAGER
+                            </div>
+                            <div class="credential-info">
+                                <div><strong>Username:</strong> stockmgr</div>
+                                <div><strong>Password:</strong> password123</div>
+                                <small class="text-muted">Access: Coming Soon Page</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sales Staff Role -->
+                    <div class="col-12">
+                        <div class="credential-card sales-role">
+                            <div class="role-badge">
+                                <i class="fas fa-shopping-cart"></i> SALES STAFF
+                            </div>
+                            <div class="credential-info">
+                                <div><strong>Username:</strong> sales1</div>
+                                <div><strong>Password:</strong> password123</div>
+                                <small class="text-muted">Access: Coming Soon Page</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- HR Staff Role -->
+                    <div class="col-12">
+                        <div class="credential-card hr-role">
+                            <div class="role-badge">
+                                <i class="fas fa-users"></i> HR STAFF
+                            </div>
+                            <div class="credential-info">
+                                <div><strong>Username:</strong> hr1</div>
+                                <div><strong>Password:</strong> password123</div>
+                                <small class="text-muted">Access: Coming Soon Page</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

@@ -111,6 +111,11 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
 
+        // Prevent deletion of active users
+        if (user.isActive()) {
+            throw new IllegalStateException("Cannot delete active users. Please deactivate the user first before deletion.");
+        }
+
         String oldValues = userMapper.toJson(user);
 
         // Hard delete

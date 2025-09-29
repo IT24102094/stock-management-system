@@ -118,6 +118,18 @@
             margin-bottom: 20px;
             opacity: 0.5;
         }
+
+        .btn-outline-secondary {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-outline-secondary:hover {
+            opacity: 0.6;
+            background-color: transparent;
+            border-color: #6c757d;
+            color: #6c757d;
+        }
     </style>
 </head>
 <body style="background-color: #f8f9fa;">
@@ -247,9 +259,11 @@
                                 <i class="fas fa-toggle-on" th:if="${user.active}"></i>
                                 <i class="fas fa-toggle-off" th:unless="${user.active}"></i>
                             </button>
-                            <button type="button" class="btn btn-outline-danger btn-sm" title="Delete"
-                                    onclick="deleteUser(this.dataset.userId, this.dataset.username)"
-                                    th:attr="data-user-id=${user.userId}, data-username=${user.username}">
+                            <button type="button" 
+                                    th:class="${user.active} ? 'btn btn-outline-secondary btn-sm' : 'btn btn-outline-danger btn-sm'"
+                                    th:title="${user.active} ? 'Cannot delete active users' : 'Delete'"
+                                    th:onclick="deleteUser(this.dataset.userId, this.dataset.username, this.dataset.active)"
+                                    th:attr="data-user-id=${user.userId}, data-username=${user.username}, data-active=${user.active}">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -355,7 +369,18 @@
         });
     }
 
-    function deleteUser(userId, username) {
+    // Prevent deletion of active users
+    function deleteUser(userId, username, isActive) {
+        if (isActive) {
+            Swal.fire({
+                title: 'Cannot Delete Active User',
+                text: 'Active users cannot be deleted. Please deactivate the user first before deletion.',
+                icon: 'info',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+        
         Swal.fire({
             title: 'Delete User',
             text: `Are you sure you want to delete user "${username}"? This action cannot be undone.`,

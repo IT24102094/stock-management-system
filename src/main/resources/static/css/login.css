@@ -88,4 +88,109 @@ body {
 
 .shake { animation: shake 0.5s ease-in-out; }
 
+/* Test Credentials Styles */
+.test-credentials {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 15px;
+    border: 1px solid #e9ecef;
+}
+
+.credential-card {
+    background: white;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 8px;
+    border-left: 4px solid #dee2e6;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.credential-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.credential-card.admin-role {
+    border-left-color: #dc3545;
+}
+
+.credential-card.stock-role {
+    border-left-color: #28a745;
+}
+
+.credential-card.sales-role {
+    border-left-color: #007bff;
+}
+
+.credential-card.hr-role {
+    border-left-color: #ffc107;
+}
+
+.role-badge {
+    font-size: 11px;
+    font-weight: 600;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    display: inline-block;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.admin-role .role-badge {
+    background: #dc3545;
+}
+
+.stock-role .role-badge {
+    background: #28a745;
+}
+
+.sales-role .role-badge {
+    background: #007bff;
+}
+
+.hr-role .role-badge {
+    background: #ffc107;
+    color: #212529;
+}
+
+.credential-info {
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.credential-info div {
+    margin-bottom: 2px;
+}
+
+.credential-info strong {
+    color: #495057;
+}
+
+.credential-info small {
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Click to fill functionality */
+.credential-card[data-username] {
+    position: relative;
+}
+
+.credential-card[data-username]:hover::after {
+    content: "Click to fill";
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    z-index: 10;
+}
+
 

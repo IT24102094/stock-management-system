@@ -267,6 +267,8 @@ public class UserController {
 
         } catch (ResourceNotFoundException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        } catch (IllegalStateException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         } catch (Exception e) {
             logger.error("Error deleting user with ID: {}", userId, e);
             redirectAttributes.addFlashAttribute("errorMessage",

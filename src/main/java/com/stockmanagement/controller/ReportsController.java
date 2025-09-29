@@ -51,17 +51,25 @@ public class ReportsController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
             Model model) {
         
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<AuditLog> auditLogs = reportsService.getAuditLogs(actionType, tableName, startDate, endDate, pageable);
-        
-        model.addAttribute("auditLogs", auditLogs);
-        model.addAttribute("actionTypes", ActionType.values());
-        model.addAttribute("currentActionType", actionType);
-        model.addAttribute("currentTableName", tableName);
-        model.addAttribute("startDate", startDate);
-        model.addAttribute("endDate", endDate);
-        
-        return "admin/audit-logs";
+        try {
+            Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+            Page<AuditLog> auditLogs = reportsService.getAuditLogs(actionType, tableName, startDate, endDate, pageable);
+            
+            model.addAttribute("auditLogs", auditLogs);
+            model.addAttribute("actionTypes", ActionType.values());
+            model.addAttribute("currentActionType", actionType);
+            model.addAttribute("currentTableName", tableName);
+            model.addAttribute("startDate", startDate);
+            model.addAttribute("endDate", endDate);
+            
+            return "admin/audit-logs";
+        } catch (Exception e) {
+            // Log the error and return a simple error page
+            System.err.println("Error loading audit logs: " + e.getMessage());
+            e.printStackTrace();
+            model.addAttribute("errorMessage", "Error loading audit logs: " + e.getMessage());
+            return "admin/audit-logs";
+        }
     }
 
     @GetMapping("/user-activity")
