@@ -43,23 +43,28 @@ public class AuthenticationSuccessHandler extends SavedRequestAwareAuthenticatio
         User user = userPrincipal.getUser();
         HttpSession session = request.getSession();
 
-        // Log successful login
         String ipAddress = getClientIpAddress(request);
         String userAgent = request.getHeader("User-Agent");
 
-        auditService.logLogin(user, ipAddress, userAgent);
+        try {
+            // Log successful login
+            auditService.logLogin(user, ipAddress, userAgent);
 
-        // Create user session record
-        UserSession userSession = new UserSession(
-                session.getId(),
-                user,
-                ipAddress,
-                userAgent,
-                LocalDateTime.now().plusMinutes(30) // 30 minutes from now
-        );
-        userSessionRepository.save(userSession);
+            // Create user session record
+            UserSession userSession = new UserSession(
+                    session.getId(),
+                    user,
+                    ipAddress,
+                    userAgent,
+                    LocalDateTime.now().plusMinutes(30)
+            );
+            userSessionRepository.save(userSession);
 
-        logger.info("User {} logged in successfully from IP: {}", user.getUsername(), ipAddress);
+            logger.info("User {} logged in successfully from IP: {}", user.getUsername(), ipAddress);
+        } catch (Exception e) {
+            // Never break the login flow due to audit/session persistence issues
+            logger.error("Post-login processing failed; proceeding with redirect. Cause: {}", e.getMessage(), e);
+        }
 
         // Route by role: ADMIN -> /admin/dashboard, others -> /coming-soon
         String targetUrl = "/coming-soon";
@@ -69,7 +74,13 @@ public class AuthenticationSuccessHandler extends SavedRequestAwareAuthenticatio
             targetUrl = "/admin/dashboard";
         }
 
-        getRedirectStrategy().sendRedirect(request, response, targetUrl);
+        try {
+            getRedirectStrategy().sendRedirect(request, response, targetUrl);
+        } catch (Exception e) {
+            logger.error("Redirect to {} failed: {}", targetUrl, e.getMessage(), e);
+            // Fallback: ensure response is at least redirected to login page to avoid 500
+            response.sendRedirect(request.getContextPath() + "/login");
+        }
     }
 
     private String getClientIpAddress(HttpServletRequest request) {

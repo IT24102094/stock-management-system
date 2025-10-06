@@ -5,9 +5,11 @@ import com.stockmanagement.entity.UserRole;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,4 +37,15 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT COUNT(u) FROM User u WHERE u.role = :role AND u.isActive = true")
     long countActiveUsersByRole(@Param("role") UserRole role);
+
+    // Clear self-referencing foreign keys before hard delete
+    @Modifying
+    @Transactional
+    @Query("UPDATE User u SET u.createdBy = null WHERE u.createdBy = :user")
+    void clearCreatedByReferences(@Param("user") User user);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE User u SET u.updatedBy = null WHERE u.updatedBy = :user")
+    void clearUpdatedByReferences(@Param("user") User user);
 }

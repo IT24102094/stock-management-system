@@ -18,7 +18,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import javax.sql.DataSource;
 
@@ -74,21 +73,21 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
-                        .loginPage("/login")
-                        .loginProcessingUrl("/perform-login")
-                        .usernameParameter("username")
-                        .passwordParameter("password")
-                        .successHandler(successHandler)
-                        .failureHandler(failureHandler)
-                        .permitAll()
-                )
+                .loginPage("/login")
+                .loginProcessingUrl("/perform-login")
+                .usernameParameter("username")
+                .passwordParameter("password")
+                .defaultSuccessUrl("/admin/dashboard", true)  // Add this line
+                .successHandler(successHandler)
+                .failureHandler(failureHandler)
+                .permitAll()
+            )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout")
                         .deleteCookies("JSESSIONID", "remember-me")
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
-                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "POST"))
                         .permitAll()
                 )
                 .rememberMe(remember -> remember
@@ -115,8 +114,6 @@ public class SecurityConfig {
                                 .includeSubDomains(true)
                         )
                 );
-
-
 
         return http.build();
     }

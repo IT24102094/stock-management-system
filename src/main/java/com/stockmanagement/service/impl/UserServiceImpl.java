@@ -118,8 +118,16 @@ public class UserServiceImpl implements UserService {
 
         String oldValues = userMapper.toJson(user);
 
+        // Clear self-referencing FKs to avoid constraint violations
+        try {
+            userRepository.clearCreatedByReferences(user);
+            userRepository.clearUpdatedByReferences(user);
+        } catch (Exception e) {
+            logger.warn("Failed to clear createdBy/updatedBy references for user {}: {}", userId, e.getMessage());
+        }
+
         // Hard delete
-        userRepository.deleteById(userId);
+        userRepository.delete(user);
 
         // Log audit trail (record the fact of deletion; after delete we only keep old values)
         auditService.logAction(currentUser, ActionType.DELETE, "users", userId, oldValues, null);
@@ -186,9 +194,9 @@ public class UserServiceImpl implements UserService {
         user.setUpdatedBy(currentUser);
         userRepository.save(user);
 
-        // Log audit trail (without password details)
+        // Log audit trail (without exposing password) as valid JSON blobs
         auditService.logAction(currentUser, ActionType.UPDATE, "users", userId,
-                "Password reset", "Password updated");
+                "{\"password\":\"reset\"}", "{\"password\":\"updated\"}");
 
         logger.info("Successfully reset password for user with ID: {}", userId);
     }
@@ -205,9 +213,9 @@ public class UserServiceImpl implements UserService {
         user.setUpdatedBy(currentUser);
         userRepository.save(user);
 
-        // Log audit trail
+        // Log audit trail with valid JSON for JSON column
         auditService.logAction(currentUser, ActionType.UPDATE, "users", userId,
-                "Active: " + oldStatus, "Active: " + user.isActive());
+                "{\"active\":" + oldStatus + "}", "{\"active\":" + user.isActive() + "}");
 
         logger.info("Successfully toggled status for user with ID: {} to {}", userId, user.isActive());
     }
