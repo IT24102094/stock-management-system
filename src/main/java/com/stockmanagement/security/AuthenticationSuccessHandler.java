@@ -1,8 +1,7 @@
 package com.stockmanagement.security;
 
 import com.stockmanagement.entity.User;
-import com.stockmanagement.entity.UserSession;
-import com.stockmanagement.repository.UserSessionRepository;
+// user session persistence delegated to UserSessionService
 import com.stockmanagement.service.AuditService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,7 +26,7 @@ public class AuthenticationSuccessHandler extends SavedRequestAwareAuthenticatio
     private AuditService auditService;
 
     @Autowired
-    private UserSessionRepository userSessionRepository;
+    private com.stockmanagement.service.UserSessionService userSessionService;
 
     public AuthenticationSuccessHandler() {
         // Default remains admin dashboard, but we'll route dynamically per role below
@@ -50,15 +49,14 @@ public class AuthenticationSuccessHandler extends SavedRequestAwareAuthenticatio
             // Log successful login
             auditService.logLogin(user, ipAddress, userAgent);
 
-            // Create user session record
-            UserSession userSession = new UserSession(
-                    session.getId(),
-                    user,
-                    ipAddress,
-                    userAgent,
-                    LocalDateTime.now().plusMinutes(30)
-            );
-            userSessionRepository.save(userSession);
+        // Create user session record in its own transaction
+        userSessionService.createSession(
+            session.getId(),
+            user,
+            ipAddress,
+            userAgent,
+            LocalDateTime.now().plusMinutes(30)
+        );
 
             logger.info("User {} logged in successfully from IP: {}", user.getUsername(), ipAddress);
         } catch (Exception e) {

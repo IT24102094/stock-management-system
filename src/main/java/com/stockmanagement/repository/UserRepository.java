@@ -38,6 +38,17 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT COUNT(u) FROM User u WHERE u.role = :role AND u.isActive = true")
     long countActiveUsersByRole(@Param("role") UserRole role);
 
+    // Analytics queries
+    @Query("SELECT u.role, COUNT(u) FROM User u GROUP BY u.role")
+    List<Object[]> getUserDistributionByRole();
+    
+    @Query("SELECT COUNT(u) FROM User u WHERE u.createdAt >= :since")
+    Long countNewUsers(@Param("since") java.time.LocalDateTime since);
+    
+    @Query("SELECT DATE(u.createdAt) as date, COUNT(u) as count FROM User u " +
+           "WHERE u.createdAt >= :since GROUP BY DATE(u.createdAt) ORDER BY date")
+    List<Object[]> getUserRegistrationTrend(@Param("since") java.time.LocalDateTime since);
+
     // Clear self-referencing foreign keys before hard delete
     @Modifying
     @Transactional
