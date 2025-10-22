@@ -1,0 +1,188 @@
+===================================================================================
+CONSOLIDATION TO SINGLE TABLE: "item"
+Stock Management System - Database Simplification
+Date: October 15, 2025
+===================================================================================
+
+✅ COMPLETED CHANGES:
+
+1. DATABASE SCHEMA UPDATES
+   ================================
+   
+   UPGRADED `item` TABLE:
+   ----------------------
+   OLD Structure (Basic):
+   - id: INT
+   - name: VARCHAR(255) NULL
+   - quantity: INT
+   - price: DOUBLE
+   - category: VARCHAR(255) NULL
+   
+   NEW Structure (Production-Ready):
+   - id: BIGINT ✓
+   - name: VARCHAR(255) NOT NULL
+   - quantity: INT (default 0)
+   - price: DECIMAL(10,2) ✓
+   - category: VARCHAR(100)
+   - sku: VARCHAR(50) UNIQUE ✓
+   - description: TEXT ✓
+   - created_date: DATETIME ✓
+   - updated_date: DATETIME ✓
+   
+   IMPROVEMENTS:
+   ✓ BIGINT ID (supports billions of records)
+   ✓ DECIMAL price (financial precision)
+   ✓ SKU field for unique product identification
+   ✓ Description field for details
+   ✓ Timestamps for tracking
+   ✓ Proper indexes added
+
+2. FOREIGN KEY RELATIONSHIPS UPDATED
+   ================================
+   All tables now reference 'item' instead of 'products':
+   
+   ✓ bill_items.product_id → item(id)
+   ✓ discounts.item_id → item(id)
+   ✓ promotion_items.item_id → item(id)
+
+3. JAVA ENTITY CLASS UPDATED
+   ================================
+   File: Product.java
+   
+   Changes:
+   ✓ @Table(name = "item") - now maps to item table
+   ✓ @Column(name = "quantity") - maps to quantity field
+   ✓ Added category field with getter/setter
+   ✓ Added description field with getter/setter
+   ✓ Updated toString() method
+   
+   NOTE: Class name remains "Product" to avoid breaking existing code.
+         Only the table mapping changed.
+
+4. SQL DATA FILES UPDATED
+   ================================
+   ✓ initial-data.sql: INSERT INTO item (not products)
+   ✓ Promotion items: SELECT FROM item (not products)
+   ✓ Discount items: SELECT FROM item (not products)
+
+5. INDEXES CREATED
+   ================================
+   ✓ idx_item_sku ON item(sku)
+   ✓ idx_item_category ON item(category)
+   ✓ idx_item_name ON item(name)
+
+===================================================================================
+📋 BENEFITS OF SINGLE TABLE:
+===================================================================================
+
+✓ SIMPLICITY: Only one table to manage inventory
+✓ NO CONFUSION: Clear which table to use
+✓ EASIER MAINTENANCE: One place for all items
+✓ BETTER PERFORMANCE: No table confusion or duplication
+✓ CLEANER CODE: All services point to one table
+✓ PRODUCTION READY: Upgraded with proper data types
+
+===================================================================================
+🔧 WHAT STAYS THE SAME:
+===================================================================================
+
+✓ Java class still named "Product" (no code breaking changes)
+✓ Service classes (ProductService) unchanged
+✓ Repository classes unchanged
+✓ Controller endpoints unchanged
+✓ API paths (/api/products) unchanged
+
+Only the underlying table mapping changed from 'products' → 'item'
+
+===================================================================================
+🧪 TESTING INSTRUCTIONS:
+===================================================================================
+
+1. BACKUP YOUR DATABASE (Important!)
+   mysqldump -u root -p stock_management_db > backup_before_migration.sql
+
+2. DROP AND RECREATE DATABASE:
+   DROP DATABASE IF EXISTS stock_management_db;
+   CREATE DATABASE stock_management_db;
+
+3. RESTART YOUR APPLICATION:
+   - Spring Boot will automatically run the new SQL scripts
+   - All tables will be created with new structure
+   - Data will be populated into 'item' table
+
+4. VERIFY THE MIGRATION:
+   - Check item table exists and has data:
+     SELECT * FROM item;
+   
+   - Verify no 'products' table exists:
+     SHOW TABLES LIKE 'products';  -- Should return empty
+   
+   - Test Bills feature (uses item table)
+   - Test Promotions feature (uses item table)
+   - Test Discounts feature (uses item table)
+
+5. CHECK APPLICATION FUNCTIONALITY:
+   ✓ Create new bill
+   ✓ Add items to bill
+   ✓ Create promotion
+   ✓ Add items to promotion
+   ✓ Create discount on item
+   ✓ View inventory list
+
+===================================================================================
+📁 FILES MODIFIED:
+===================================================================================
+
+Schema Files:
+✓ db/schema/02-inventory-tables.sql - Upgraded item table, removed products
+✓ db/schema/04-sales-tables.sql - bill_items FK → item
+✓ db/schema/05-promotions-discounts-tables.sql - FKs → item
+
+Data Files:
+✓ db/data/initial-data.sql - INSERT INTO item, SELECT FROM item
+
+Java Files:
+✓ entity/Product.java - @Table(name = "item"), added fields
+
+===================================================================================
+⚠️ OLD FILES TO UPDATE (if still using old SQL):
+===================================================================================
+
+If you still have these old files, they reference 'products':
+- schema.sql
+- data.sql
+- promotions-schema.sql
+- promotion-discount-data.sql
+
+These should be DELETED or ignored (application.properties uses new db/* structure)
+
+===================================================================================
+🎯 NEXT STEPS:
+===================================================================================
+
+1. ✅ Database structure consolidated
+2. ✅ Java entity updated
+3. ✅ Foreign keys updated
+4. ✅ Data scripts updated
+
+READY TO TEST!
+
+Run your application and verify:
+- Items can be added/viewed via inventory management
+- Bills can be created with items
+- Promotions work with items
+- Discounts work with items
+
+===================================================================================
+💡 FUTURE RECOMMENDATION:
+===================================================================================
+
+Consider renaming ProductService → ItemService for consistency:
+- ProductService → ItemService
+- ProductRepository → ItemRepository
+- ProductController → ItemController
+- Product.java → Item.java
+
+But this is optional and can be done later without breaking anything.
+
+===================================================================================

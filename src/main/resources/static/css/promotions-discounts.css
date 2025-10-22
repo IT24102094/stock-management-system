@@ -1,0 +1,109 @@
+/* Styles for promotions and discounts */
+.promotion-card,
+.discount-card {
+    transition: transform 0.3s;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.promotion-card:hover,
+.discount-card:hover {
+    transform: translateY(-5px);
+}
+
+.promotion-card {
+    border-left: 4px solid #4e73df;
+}
+
+.promotion-active {
+    border-left-color: #1cc88a;
+}
+
+.promotion-inactive {
+    border-left-color: #858796;
+}
+
+.promotion-expired {
+    border-left-color: #e74a3b;
+}
+
+.badge-percentage {
+    background-color: #28a745;
+    color: white;
+}
+
+.badge-fixed {
+    background-color: #007bff;
+    color: white;
+}
+
+.date-range {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.items-count {
+    font-size: 0.85rem;
+    color: #4e73df;
+}
+
+/* Item card in promotions view */
+.item-card {
+    transition: transform 0.3s;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    height: 100%;
+}
+
+.item-card:hover {
+    transform: translateY(-5px);
+}
+
+.discount-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #e74a3b;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+/* Select2 customization */
+.select2-container--default .select2-selection--multiple {
+    border-color: #d1d3e2;
+    border-radius: 0.35rem;
+}
+
+.select2-container--default.select2-container--focus .select2-selection--multiple {
+    border-color: #bac8f3;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+    background-color: #4e73df;
+    border-color: #4668d9;
+    color: #fff;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+    color: #fff;
+}
+
+/* Flatpickr customization */
+.flatpickr-day.selected, 
+.flatpickr-day.startRange, 
+.flatpickr-day.endRange, 
+.flatpickr-day.selected.inRange, 
+.flatpickr-day.startRange.inRange, 
+.flatpickr-day.endRange.inRange, 
+.flatpickr-day.selected:focus, 
+.flatpickr-day.startRange:focus, 
+.flatpickr-day.endRange:focus, 
+.flatpickr-day.selected:hover, 
+.flatpickr-day.startRange:hover, 
+.flatpickr-day.endRange:hover {
+    background: #4e73df;
+    border-color: #4e73df;
+}
