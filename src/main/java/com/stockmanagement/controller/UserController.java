@@ -10,8 +10,6 @@ import com.stockmanagement.exception.DuplicateResourceException;
 import com.stockmanagement.exception.ResourceNotFoundException;
 import com.stockmanagement.repository.UserRepository;
 import com.stockmanagement.service.UserService;
-import com.stockmanagement.util.ValidationUtil;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,9 +41,6 @@ public class UserController {
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private ValidationUtil validationUtil;
 
     @GetMapping
     public String listUsers(@RequestParam(defaultValue = "0") int page,

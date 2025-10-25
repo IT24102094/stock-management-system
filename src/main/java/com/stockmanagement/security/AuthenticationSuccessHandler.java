@@ -64,12 +64,30 @@ public class AuthenticationSuccessHandler extends SavedRequestAwareAuthenticatio
             logger.error("Post-login processing failed; proceeding with redirect. Cause: {}", e.getMessage(), e);
         }
 
-        // Route by role: ADMIN -> /admin/dashboard, others -> /coming-soon
-        String targetUrl = "/coming-soon";
+        // Route by role to appropriate dashboard
+        String targetUrl = "/admin/dashboard"; // Default fallback
+        
         boolean isAdmin = authentication.getAuthorities().stream()
                 .anyMatch(ga -> ga.getAuthority().equals("ROLE_ADMIN"));
+        boolean isStockManager = authentication.getAuthorities().stream()
+                .anyMatch(ga -> ga.getAuthority().equals("ROLE_STOCK_MANAGER"));
+        boolean isSalesStaff = authentication.getAuthorities().stream()
+                .anyMatch(ga -> ga.getAuthority().equals("ROLE_SALES_STAFF"));
+        boolean isHRStaff = authentication.getAuthorities().stream()
+                .anyMatch(ga -> ga.getAuthority().equals("ROLE_HR_STAFF"));
+        boolean isMarketingManager = authentication.getAuthorities().stream()
+                .anyMatch(ga -> ga.getAuthority().equals("ROLE_MARKETING_MANAGER"));
+                
         if (isAdmin) {
             targetUrl = "/admin/dashboard";
+        } else if (isStockManager) {
+            targetUrl = "/items/dashboard";
+        } else if (isSalesStaff) {
+            targetUrl = "/bills";
+        } else if (isHRStaff) {
+            targetUrl = "/staff";
+        } else if (isMarketingManager) {
+            targetUrl = "/promotions";
         }
 
         try {

@@ -6,143 +6,100 @@
     <title>View User - Stock Management System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        .user-card {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-        }
-
-        .user-avatar-large {
-            width: 120px;
-            height: 120px;
-            background: linear-gradient(135deg, #3498db, #2c3e50);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 3rem;
-            font-weight: bold;
-        }
-
-        .info-label {
-            font-weight: 600;
-            color: #6c757d;
-            text-transform: uppercase;
-            font-size: 0.8rem;
-            letter-spacing: 1px;
-        }
-
-        .info-value {
-            font-size: 1.1rem;
-            color: #2c3e50;
-            margin-bottom: 1rem;
-        }
-
-        .status-badge {
-            font-size: 1rem;
-            padding: 8px 16px;
-            border-radius: 20px;
-        }
-    </style>
+    <link th:href="@{/css/form-theme.css}" rel="stylesheet">
 </head>
-<body style="background-color: #f8f9fa;">
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="user-card">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h2 class="mb-1"><i class="fas fa-user text-info"></i> User Details</h2>
-                        <p class="text-muted mb-0">View user information</p>
-                    </div>
-                    <div>
-                        <a href="/users" class="btn btn-outline-secondary me-2">
-                            <i class="fas fa-arrow-left"></i> Back to Users
-                        </a>
-                        <a th:href="@{/users/{id}/edit(id=${user.userId})}" class="btn btn-warning">
-                            <i class="fas fa-edit"></i> Edit User
-                        </a>
-                    </div>
+<body>
+<div class="bg-animation" id="bgAnimation"></div>
+
+<div class="container-fluid">
+    <div class="form-container">
+    <div class="form-container">
+        <div class="form-header">
+            <div class="d-flex align-items-center">
+                <div class="user-view-icon">
+                    <i class="fas fa-user"></i>
                 </div>
-
-                <div class="row">
-                    <div class="col-md-4 text-center mb-4">
-                        <div class="user-avatar-large mx-auto mb-3"
-                             th:text="${user.initials}">JD</div>
-                        <h4 th:text="${user.fullName}">John Doe</h4>
-                        <span class="status-badge text-white"
-                              th:classappend="${user.active} ? ' bg-success' : ' bg-danger'"
-                              th:text="${user.active} ? 'Active' : 'Inactive'">Active</span>
-                    </div>
-
-                    <div class="col-md-8">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="info-label">Username</div>
-                                <div class="info-value" th:text="${user.username}">johndoe</div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <div class="info-label">Email Address</div>
-                                <div class="info-value" th:text="${user.email}">john@example.com</div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <div class="info-label">First Name</div>
-                                <div class="info-value" th:text="${user.firstName}">John</div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <div class="info-label">Last Name</div>
-                                <div class="info-value" th:text="${user.lastName}">Doe</div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <div class="info-label">Role</div>
-                                <div class="info-value">
-                                    <span class="badge bg-primary" th:text="${user.role.name().replace('_', ' ')}">ADMIN</span>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <div class="info-label">Member Since</div>
-                                <div class="info-value" th:text="${#temporals.format(user.createdAt, 'MMMM dd, yyyy')}">January 01, 2024</div>
-                            </div>
-
-                            <div class="col-md-6" th:if="${user.updatedAt}">
-                                <div class="info-label">Last Updated</div>
-                                <div class="info-value" th:text="${#temporals.format(user.updatedAt, 'MMMM dd, yyyy HH:mm')}">January 01, 2024 10:30</div>
-                            </div>
-
-                            <div class="col-md-6" th:if="${user.createdBy}">
-                                <div class="info-label">Created By</div>
-                                <div class="info-value" th:text="${user.createdBy}">Admin User</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <hr class="my-4">
-
-                <div class="d-flex justify-content-center gap-2">
-                    <a th:href="@{/users/{id}/edit(id=${user.userId})}" class="btn btn-warning">
-                        <i class="fas fa-edit"></i> Edit User
-                    </a>
-                    <a th:href="@{/users/{id}/reset-password(id=${user.userId})}" class="btn btn-secondary">
-                        <i class="fas fa-key"></i> Reset Password
-                    </a>
-                    <button type="button" class="btn btn-primary"
-                            onclick="toggleUserStatus(this.dataset.userId, this.dataset.username)"
-                            th:attr="data-user-id=${user.userId}, data-username=${user.username}">
-                        <i class="fas fa-toggle-on" th:if="${user.active}"></i>
-                        <i class="fas fa-toggle-off" th:unless="${user.active}"></i>
-                        <span th:text="${user.active ? 'Deactivate' : 'Activate'}">Toggle Status</span>
-                    </button>
+                <div class="form-header-content">
+                    <h2>User Details</h2>
+                    <p>View user information</p>
                 </div>
             </div>
+            <a href="/users" class="btn btn-secondary-modern">
+                <i class="fas fa-arrow-left me-2"></i>Back to Users
+            </a>
+        </div>
+
+        <div class="info-card">
+            <div class="row">
+                <div class="col-md-4 text-center mb-4">
+                    <div class="user-avatar mx-auto mb-3"
+                         th:text="${user.initials}">JD</div>
+                    <h4 style="color: var(--text-light);" th:text="${user.fullName}">John Doe</h4>
+                    <span class="badge"
+                          th:classappend="${user.active} ? ' badge-success' : ' badge-danger'"
+                          th:text="${user.active} ? 'Active' : 'Inactive'">Active</span>
+                </div>
+
+                <div class="col-md-8">
+                    <div class="info-row">
+                        <div class="info-label"><i class="fas fa-user me-2"></i>Username</div>
+                        <div class="info-value" th:text="${user.username}">johndoe</div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label"><i class="fas fa-envelope me-2"></i>Email Address</div>
+                        <div class="info-value" th:text="${user.email}">john@example.com</div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label"><i class="fas fa-id-card me-2"></i>First Name</div>
+                        <div class="info-value" th:text="${user.firstName}">John</div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label"><i class="fas fa-id-card me-2"></i>Last Name</div>
+                        <div class="info-value" th:text="${user.lastName}">Doe</div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label"><i class="fas fa-user-tag me-2"></i>Role</div>
+                        <div class="info-value">
+                            <span class="badge badge-primary" th:text="${user.role.name().replace('_', ' ')}">ADMIN</span>
+                        </div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label"><i class="fas fa-calendar me-2"></i>Member Since</div>
+                        <div class="info-value" th:text="${#temporals.format(user.createdAt, 'MMMM dd, yyyy')}">January 01, 2024</div>
+                    </div>
+
+                    <div class="info-row" th:if="${user.updatedAt}">
+                        <div class="info-label"><i class="fas fa-clock me-2"></i>Last Updated</div>
+                        <div class="info-value" th:text="${#temporals.format(user.updatedAt, 'MMMM dd, yyyy HH:mm')}">January 01, 2024 10:30</div>
+                    </div>
+
+                    <div class="info-row" th:if="${user.createdBy}">
+                        <div class="info-label"><i class="fas fa-user-check me-2"></i>Created By</div>
+                        <div class="info-value" th:text="${user.createdBy}">Admin User</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a th:href="@{/users/{id}/edit(id=${user.userId})}" class="btn btn-modern">
+                <i class="fas fa-edit me-2"></i>Edit User
+            </a>
+            <a th:href="@{/users/{id}/reset-password(id=${user.userId})}" class="btn btn-secondary-modern">
+                <i class="fas fa-key me-2"></i>Reset Password
+            </a>
+            <button type="button" class="btn btn-info-modern"
+                    onclick="toggleUserStatus(this.dataset.userId, this.dataset.username)"
+                    th:attr="data-user-id=${user.userId}, data-username=${user.username}">
+                <i class="fas fa-toggle-on" th:if="${user.active}"></i>
+                <i class="fas fa-toggle-off" th:unless="${user.active}"></i>
+                <span th:text="${user.active ? 'Deactivate' : 'Activate'}">Toggle Status</span>
+            </button>
         </div>
     </div>
 </div>

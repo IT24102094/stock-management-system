@@ -26,18 +26,14 @@ public class AuthenticationFailureHandler extends SimpleUrlAuthenticationFailure
 
         String username = request.getParameter("username");
         String ipAddress = getClientIpAddress(request);
-        String errorMessage;
 
         if (exception instanceof BadCredentialsException) {
-            errorMessage = "Invalid username or password";
             logger.warn("Failed login attempt for username: {} from IP: {} - Invalid credentials",
                     username, ipAddress);
         } else if (exception instanceof DisabledException || exception instanceof UsernameNotFoundException) {
-            errorMessage = "Account is disabled or does not exist";
             logger.warn("Failed login attempt for username: {} from IP: {} - Account disabled/not found",
                     username, ipAddress);
         } else {
-            errorMessage = "Authentication failed";
             logger.warn("Failed login attempt for username: {} from IP: {} - {}",
                     username, ipAddress, exception.getMessage());
         }

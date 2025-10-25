@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Audit Logs - Stock Management System</title>
+
+    <!-- Bootstrap CSS & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+
+    <style>
+        :root {
+            --bg-primary: #1a1d29;
+            --bg-secondary: #2d3142;
+            --bg-card: #252837;
+            --cyan: #00d9ff;
+            --orange: #ff9f43;
+            --green: #10b981;
+            --red: #ef4444;
+            --yellow: #fbbf24;
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+            --border-color: #3d4252;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 13px;
+        }
+
+        .main-content {
+            margin-left: 240px;
+            min-height: 100vh;
+            width: calc(100% - 240px);
+        }
+
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .content-wrapper {
+            padding: 1.25rem;
+        }
+
+        .page-header {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.25rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: var(--orange);
+            transform: translateY(-2px);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .stat-icon.total {
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.2), rgba(0, 217, 255, 0.05));
+            color: var(--cyan);
+        }
+
+        .stat-icon.increase {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.05));
+            color: var(--green);
+        }
+
+        .stat-icon.decrease {
+            background: linear-gradient(135deg, rgba(255, 159, 67, 0.2), rgba(255, 159, 67, 0.05));
+            color: var(--orange);
+        }
+
+        .stat-icon.critical {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.05));
+            color: var(--red);
+        }
+
+        .stat-info h4 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .stat-info p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        .filter-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1.25rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .table-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .table {
+            color: var(--text-primary);
+            margin-bottom: 0;
+        }
+
+        .table th {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            font-weight: 600;
+            border: none;
+            padding: 1rem;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table td {
+            padding: 1rem;
+            vertical-align: middle;
+            border: none;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.875rem;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: rgba(255, 165, 67, 0.05);
+        }
+
+        .badge-severity {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-severity.normal {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--green);
+        }
+
+        .badge-severity.medium {
+            background: rgba(251, 191, 36, 0.2);
+            color: var(--yellow);
+        }
+
+        .badge-severity.high {
+            background: rgba(255, 159, 67, 0.2);
+            color: var(--orange);
+        }
+
+        .badge-severity.critical {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--red);
+        }
+
+        .badge-action {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-action.increase {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--green);
+        }
+
+        .badge-action.decrease {
+            background: rgba(255, 159, 67, 0.2);
+            color: var(--orange);
+        }
+
+        .form-control, .form-select {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background-color: var(--bg-secondary);
+            border-color: var(--orange);
+            color: var(--text-primary);
+            box-shadow: 0 0 0 0.2rem rgba(255, 159, 67, 0.25);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--orange), #ff6b35);
+            border: none;
+            color: white;
+            font-weight: 500;
+            padding: 8px 20px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(255, 159, 67, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-card);
+            border-color: var(--text-secondary);
+            color: var(--text-primary);
+        }
+
+        .empty-state {
+            padding: 60px 20px;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .change-positive {
+            color: var(--green);
+            font-weight: 600;
+        }
+
+        .change-negative {
+            color: var(--orange);
+            font-weight: 600;
+        }
+
+        .timestamp {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .pagination {
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .pagination button {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .pagination button:hover {
+            background: var(--bg-card);
+            border-color: var(--orange);
+            color: var(--orange);
+        }
+
+        .pagination button.active {
+            background: var(--orange);
+            border-color: var(--orange);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .stats-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Include Sidebar -->
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <h5><i class="fas fa-clipboard-list"></i> Inventory Audit Logs</h5>
+            <div class="user-info">
+                <span sec:authentication="name">User</span>
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content-wrapper">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h2>Inventory Audit Trail</h2>
+                <p>Complete history of all inventory stock changes with detailed tracking</p>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-icon total">
+                        <i class="fas fa-list"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h4 id="totalLogs">0</h4>
+                        <p>Total Audit Logs</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon increase">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h4 id="increaseLogs">0</h4>
+                        <p>Stock Increases</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon decrease">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h4 id="decreaseLogs">0</h4>
+                        <p>Stock Decreases</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon critical">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h4 id="criticalLogs">0</h4>
+                        <p>Critical Events</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filter-card">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Severity Level</label>
+                        <select class="form-select" id="severityFilter">
+                            <option value="">All Severities</option>
+                            <option value="NORMAL">Normal</option>
+                            <option value="MEDIUM">Medium</option>
+                            <option value="HIGH">High</option>
+                            <option value="CRITICAL">Critical</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Action Type</label>
+                        <select class="form-select" id="actionFilter">
+                            <option value="">All Actions</option>
+                            <option value="STOCK_INCREASE">Stock Increase</option>
+                            <option value="STOCK_DECREASE">Stock Decrease</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Search Item</label>
+                        <input type="text" class="form-control" id="searchBox" 
+                               placeholder="Search by item name or SKU...">
+                    </div>
+
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button class="btn btn-primary w-100" id="refreshBtn">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Audit Logs Table -->
+            <div class="table-card">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Item</th>
+                                <th>Action</th>
+                                <th>Previous Qty</th>
+                                <th>New Qty</th>
+                                <th>Change</th>
+                                <th>Value Impact</th>
+                                <th>Severity</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="auditTableBody">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination" id="pagination"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const apiUrl = 'http://localhost:8080/inventory/audit/api';
+        let allLogs = [];
+        let filteredLogs = [];
+        const itemsPerPage = 15;
+        let currentPage = 1;
+
+        // Fetch audit logs
+        function fetchAuditLogs() {
+            fetch(`${apiUrl}/all`)
+                .then(res => {
+                    if (!res.ok) throw new Error('Failed to fetch audit logs');
+                    return res.json();
+                })
+                .then(data => {
+                    allLogs = data;
+                    filteredLogs = data;
+                    updateStatistics();
+                    applyFilters();
+                })
+                .catch(err => {
+                    console.error('Fetch error:', err);
+                    showEmptyState('Error loading audit logs: ' + err.message);
+                });
+        }
+
+        // Update statistics cards
+        function updateStatistics() {
+            const total = allLogs.length;
+            const increases = allLogs.filter(log => log.actionType === 'STOCK_INCREASE').length;
+            const decreases = allLogs.filter(log => log.actionType === 'STOCK_DECREASE').length;
+            const critical = allLogs.filter(log => log.severity === 'CRITICAL').length;
+
+            document.getElementById('totalLogs').textContent = total;
+            document.getElementById('increaseLogs').textContent = increases;
+            document.getElementById('decreaseLogs').textContent = decreases;
+            document.getElementById('criticalLogs').textContent = critical;
+        }
+
+        // Apply filters
+        function applyFilters() {
+            const severityFilter = document.getElementById('severityFilter').value;
+            const actionFilter = document.getElementById('actionFilter').value;
+            const searchText = document.getElementById('searchBox').value.toLowerCase();
+
+            filteredLogs = allLogs.filter(log => {
+                const matchSeverity = !severityFilter || log.severity === severityFilter;
+                const matchAction = !actionFilter || log.actionType === actionFilter;
+                const matchSearch = !searchText || 
+                    log.item.name.toLowerCase().includes(searchText) ||
+                    (log.item.sku && log.item.sku.toLowerCase().includes(searchText));
+
+                return matchSeverity && matchAction && matchSearch;
+            });
+
+            currentPage = 1;
+            renderTable();
+        }
+
+        // Render table
+        function renderTable() {
+            const tbody = document.getElementById('auditTableBody');
+            tbody.innerHTML = '';
+
+            if (filteredLogs.length === 0) {
+                showEmptyState('No audit logs found matching your filters');
+                document.getElementById('pagination').innerHTML = '';
+                return;
+            }
+
+            const start = (currentPage - 1) * itemsPerPage;
+            const paginated = filteredLogs.slice(start, start + itemsPerPage);
+
+            paginated.forEach(log => {
+                const timestamp = new Date(log.timestamp).toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                const changeClass = log.changeAmount > 0 ? 'change-positive' : 'change-negative';
+                const changeIcon = log.changeAmount > 0 ? '▲' : '▼';
+                
+                const severityClass = log.severity.toLowerCase();
+                const actionClass = log.actionType === 'STOCK_INCREASE' ? 'increase' : 'decrease';
+                const actionText = log.actionType.replace('STOCK_', '');
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="timestamp">${timestamp}</td>
+                    <td>
+                        <strong>${log.item.name}</strong><br>
+                        <small class="text-secondary">${log.item.sku || 'N/A'}</small>
+                    </td>
+                    <td><span class="badge-action ${actionClass}">${actionText}</span></td>
+                    <td>${log.previousQuantity}</td>
+                    <td>${log.newQuantity}</td>
+                    <td class="${changeClass}">
+                        ${changeIcon} ${Math.abs(log.changeAmount)} units
+                    </td>
+                    <td>$${log.valueImpact.toFixed(2)}</td>
+                    <td><span class="badge-severity ${severityClass}">${log.severity}</span></td>
+                    <td><small>${log.notes || '-'}</small></td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            renderPagination();
+        }
+
+        // Render pagination
+        function renderPagination() {
+            const paginationDiv = document.getElementById('pagination');
+            paginationDiv.innerHTML = '';
+
+            const totalPages = Math.ceil(filteredLogs.length / itemsPerPage);
+
+            if (totalPages <= 1) return;
+
+            for (let i = 1; i <= totalPages; i++) {
+                const btn = document.createElement('button');
+                btn.textContent = i;
+                btn.className = i === currentPage ? 'active' : '';
+                btn.onclick = () => {
+                    currentPage = i;
+                    renderTable();
+                };
+                paginationDiv.appendChild(btn);
+            }
+        }
+
+        // Show empty state
+        function showEmptyState(message) {
+            const tbody = document.getElementById('auditTableBody');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="9" class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>${message}</p>
+                    </td>
+                </tr>
+            `;
+        }
+
+        // Event listeners
+        document.getElementById('severityFilter').addEventListener('change', applyFilters);
+        document.getElementById('actionFilter').addEventListener('change', applyFilters);
+        document.getElementById('searchBox').addEventListener('input', applyFilters);
+        document.getElementById('refreshBtn').addEventListener('click', fetchAuditLogs);
+
+        // Initialize
+        fetchAuditLogs();
+
+        // Auto-refresh every 30 seconds
+        setInterval(fetchAuditLogs, 30000);
+    </script>
+</body>
+</html>

@@ -67,9 +67,27 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authz -> authz
+                        // Public access
                         .requestMatchers("/", "/login", "/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
-                        .requestMatchers("/coming-soon").authenticated()
+                        .requestMatchers("/password/forgot", "/password/reset").permitAll()
+                        // Setup page for initial admin creation
+                        .requestMatchers("/setup", "/setup/**").permitAll()
+                        
+                        // ADMIN - Full access to everything
                         .requestMatchers("/admin/**", "/users/**").hasRole("ADMIN")
+                        
+                        // STOCK_MANAGER - Suppliers and Inventory
+                        .requestMatchers("/items/**", "/suppliers/**").hasAnyRole("ADMIN", "STOCK_MANAGER")
+                        
+                        // SALES_STAFF - Customers and Bills
+                        .requestMatchers("/customers/**", "/bills/**").hasAnyRole("ADMIN", "SALES_STAFF")
+                        
+                        // HR_STAFF - Staff Management
+                        .requestMatchers("/staff/**").hasAnyRole("ADMIN", "HR_STAFF")
+                        
+                        // MARKETING_MANAGER - Discounts and Promotions
+                        .requestMatchers("/promotions/**", "/discounts/**").hasAnyRole("ADMIN", "MARKETING_MANAGER")
+                        
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
@@ -99,12 +117,14 @@ public class SecurityConfig {
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                        .invalidSessionUrl("/login?session=expired")
                         .maximumSessions(3)
                         .maxSessionsPreventsLogin(false)
+                        .expiredUrl("/login?session=expired")
                         .sessionRegistry(sessionRegistry())
                 )
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/api/**")
+                        .ignoringRequestMatchers("/api/**", "/items/**", "/suppliers/**", "/promotions/**", "/discounts/**", "/customers/**", "/bills/**", "/staff/**")
                 )
                 .headers(headers -> headers
                         .frameOptions(frame -> frame.deny())

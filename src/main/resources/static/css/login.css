@@ -156,6 +156,11 @@ body {
     color: #212529;
 }
 
+.marketing-role .role-badge {
+    background: #a855f7;
+    color: white;
+}
+
 .credential-info {
     font-size: 12px;
     line-height: 1.4;

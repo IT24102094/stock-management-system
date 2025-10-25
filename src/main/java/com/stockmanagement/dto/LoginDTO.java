@@ -1,7 +1,6 @@
 package com.stockmanagement.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 
 public class LoginDTO {
     @NotBlank(message = "Username is required")
